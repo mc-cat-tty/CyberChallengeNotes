@@ -1,0 +1,58 @@
+\section{Introduction}
+Reason: convenience (portability et sim. for DevOps) and security, to avoid that a pwned application exposes access to underlying host OS.
+
+Containers are isolated environments sharing the same real operating system.
+Containers are self-contained, meaning that they carry all the libraries/dependencies needed by the application to run.
+
+Image vs container: image is immutable and static, while container is a running image. Same different between binary and process.
+
+\subsection{Containers Lifecycle}
+Images can be compiled on-premise or downloaded pre-compiled from a central repository/hub.
+Same as building a binary from source code or instaling a packaged version.
+
+Docker container states are running, paused, #TODO
+
+\subsection{Commands}
+run -> incapsulates pull, create, exec (from the image)
+exec -> runs a command on a running container
+ps -a -> all mean also stopped containers
+
+Containers don't have storage, persistency is enabled by volumes.
+
+\subsection{Persistency}
+The option is the same (`-v`). If a path (either relative or absolute) is passed, a bind mount is performed. Otherwise 
+
+
+\subsection{Dockerfile}
+`FROM scratch`
+
+Almost every directive is a different layer, for caching reasons.
+Sometimes it is convenient to discard caching capabilities in favor of ligher images.
+
+\subsection{Network}
+Different configurations supported, main ones are:
+ - bridge -> creates a isolated L3 network layer that allows containers to communicated with each other. Masquerading is 
+ - host -> exposes ports to host network, host and containers share network properties (#TODO rephrase)
+
+ Explicit network none to avoid automatic creation of network, which allows containers to communicate.
+
+ Be aware that without specifying network address, 0.0.0.0 is used as default, making a service exposed to all the users in the LAN (or even all Internet if no NATting is hiding u).
+
+\subsection{Compose}
+Automates container creation from a YAML file.
+
+Subcommands:
+ - up -> runs services, even if not already started
+ - start -> runs services, must be already running. U can add `-d` to detach the terminal
+ - stop -> pauses the container
+ - down -> pauses and deletes the container. U can add `-v` to delete the volumes
+
+Build context provides variables to the Dockerfile that control conditionally the compilation, for instance.
+
+\section{NS 0.00}
+-i -> interactive
+-t -> tty like termina
+
+\section{NS 0.09}
+`ss -tln' -> socket listening on tcp, number version of ports
+`ss -tulpn'
