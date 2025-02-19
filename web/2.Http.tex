@@ -1,0 +1,89 @@
+\section{HTTP Protocol}
+Born when noone cared about security.
+
+Client-server, request-response, stateless protocol (originally), human readable.
+
+HTTP serves resource: from HTML pages to binary data.
+
+URI: `scheme://user@host:port/path?query#fragment`
+
+Basic authentication mechanism
+
+Query asks the server to modify a resource, in some way (create or update for instance). Multiple params under the same name are managed differently depending on the server implementation.
+
+Given that we want to use the same set special chars in the URI as normal ones, the URL encoding has been invented to escape those chars.
+Sometimes the escaping is not unique, for instance \%20 and +.
+
+How?
+https://cyberchef.org
+encodeURIComponent("string");
+urllib.parse
+
+HEAD verb is useful to check availability of a resource w/o dowloading it.
+
+Base64 encoding is necessary to send binary data to a server.
+
+Remind body structure: request line, header fields, blank x2, boh
+
+\subsection{Cookies}
+Cookies: mechanism to make HTTP stateful
+
+A server can set a cookie in a response body, the client will sent it back to the server.
+
+Same origin policy: the client can send the cookie back to a server only if that server released it.
+
+\subsection{Security}
+Integrity: maintain accuracy of data, detect if changed
+Confidentiality: 
+Availability:
+
+The first two are guaranteed by cryptography, the last is guaranteed through good system design
+
+Weakness become vulnerability only if exploitable.
+
+Both client and server must be secure to have a secure communication. Also browsers!!
+
+The more info about the system the better, but black boxes are not secure. "Security through obscurity"
+
+
+On the fly HTTP server: httpd/php/Python HTTP
+
+\subsection{File Disclosure}
+Idea: files specific of an operating system to assess which is the t
+
+Path traversal: remind that in every folder there are two special files (. and ..). Prepended, appended or both.
+
+Defense based on blacklists is not effective. Eg: blocking access to a file/directory doesn't prevent the attacker to access the same resource through a link. Or \\u012e character, which is erronously 
+See: https://privsec.dev/posts/knowledge/badness-enumeration/
+
+Path normalization: turn the path into a valid form or enforce a structure. 
+Whitelisting works better than blacklisting.
+´chroot´ is another countermesure from the systemic PoV.
+
+See: PHP and its string interpretation capabilities which relied on C -> passes strings to C code, which uses \0 as terminator. We can terminate the string in whatever place we want.
+
+\subsection{Server-Side Request Forgery}
+Idea: make the server send a request, bypassing firewalls and other frontier security messures.
+Blind SSRF: cannot see directly the output of the SSRF, but the result is some way notified to me.
+Response time is a good indicator of weather the response is successful or not
+
+To find an SSRF look at:
+ - suspicious endpoints
+ - URL encoded as params
+
+
+See: grok
+
+\section{Challenges}
+\subsection{WS_1.03}
+Symbolic links can be zipped in a .zip file
+
+When unzipped, for instance by a server, 
+
+OpenSearch: XML file that describes to client how to make search on the website. It is used to browsers to add a server as search engine.
+
+PHP leaks used version in header files.
+
+php:<version>-cli
+
+See: https://www.hacktricks.wiki, PayloadAllTheThings, ngrok/tmole
