@@ -1,0 +1,11 @@
+\chapter{Logical Vulnerabilities}
+IDOR - Insecure Direct Object Reference - is a vuln that comes out when handles are used in the backend of a server without proper access control.
+Meaning, even an unauthorized user can access resources of another used: this is called horizontal privilege escalation.
+Not vertical because we don't get more power (becoming eg root users), but we get the permission to access data of another user.
+
+Frontend-only input validation is another type of common errors.
+Unless you are 100\% sure the client is the one you expect (eg. SSL pinning in Android applications), do not trust it.
+
+\texttt{parseInt} in javascript is really vulnerable.
+Regardless of the string given as input, if the input prefix is a number, in a greedy way the digits are converted to a int.
+This allows to pass validations with values that are not pure integers.

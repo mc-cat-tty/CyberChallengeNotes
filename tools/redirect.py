@@ -11,6 +11,7 @@ class Redirect(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(302)
         self.send_header('Location', sys.argv[2])
+        self.send_header('Content-Type', "image/png")
         self.end_headers()
 
 HTTPServer(("", int(sys.argv[1])), Redirect).serve_forever()

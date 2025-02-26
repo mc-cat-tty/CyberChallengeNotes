@@ -1,0 +1,39 @@
+\chapter{SQL Injections}
+\section{Attack}
+Blind SQL injections are used to bypass purposes, for instance to bypass logins, or to get a T/F information.
+As a matter of fact, we don't expect an output from this type of queries, hence the "blind" in the name.
+
+Classical logins queries \texttt{SELECT * FROM users WHERE user = REQUEST['user'] AND password = REQUEST['password']} can be bypassed with \texttt{' OR 1==2 --}.
+
+Union-based SQL queries are used to assess the structure of the schema of the DB.
+Union-based refers to the fact that the attack 
+
+Eg: \texttt{SELECT col1, col2 FROM table1 UNION SELECT col3, col4 FROM table2}.
+Typical requisites for this type of query are same number of columns and, sometimes, same columns type.
+
+Attack surface: server-side queries stractured as follows \texttt{SELECT <cols> FROM <table> WHERE col = <input>}
+
+Injected input: \texttt{1 UNION SELECT 1,2,3} 
+
+Retrieving the number of columns two approaches can be used: brute-forcing or order-by.
+Order-by is used in a trial-and-error fashion, with number of cols to order as a probe.
+It can be used to implement a binary search algo.
+
+\texttt{1 AND 1=0 UNION select 1,2,3} is a trick to nullify datas retrieved by the original query.
+
+\texttt{SELECT schema_name FROM information_schema.schemata}
+\texttt{SELECT tables FROM information_schema.tables}
+
+Values bruteforcing can be performed on a reduced set of values using the hex function.
+
+When to stop? when reached a point in which every possible char fails the test
+
+\section{Defence}
+SQL injections exist due to lack of input validation.
+
+Solutions:
+ - escaping -> not effective
+ - prepared statements: they use placeholders to declare where the input is used. See placeholders value, and trigger the query. That's all. This is optimized under the POV of performance, since query is compiled just once.
+ - Object Relational Mapping (ORM): classes-tables are mapped into a 1:1 relationship.
+
+Eg. Hibernate, SQL Alchemy,
