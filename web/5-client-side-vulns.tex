@@ -1,0 +1,38 @@
+\chapter{Client-side Vulnerabilities}
+JS is executed inside a sandbox to avoid the contamination of 
+Web pages contains and manage user data, cookies, etc.
+
+\section{Cookies}
+Browser sends cookies to the servers according to the SOP - Same Origin Policy.
+
+Origin is a triple schema + hostname + port. The browser can send the cookie just to the same origin that emitted it.
+
+Hostname is stored as a string. The real IP doesn't matter: hence an attacker could manipulate the DNS server to obtain a cookie under SOP.
+
+\section{XSS - Cross Site Scripting}
+XSS is a type of injection in which the attacker manages to execute arbitrary JS code inside the page of a victim.
+
+There are two types of XSS attacks:
+- reflected: when the server echoes the content of a request, that the attacker is able to manipualte. This is a weakness of both the client and the server.
+- stored: when the server first stores the malicious code (e.g., through the comment section of the website), then served to the victim.
+
+Potentially dangerous chars are \textt{<}, \textt{>}, \textt{"}. HTML-encoding there exists for these characters.
+
+Solution: escape each character printed on a page. Or a less error-prone solution is the use of templates, like \href{https://handlebarsjs.com}{Handlebars}.
+
+Mitigations:
+- \tettt{HttpOnly} cookies are not accessible by JS
+- \tettt{textContent} attribute adds a new node relative to the object in the DOM, contrary to \texttt{innerHTML} it escapes content.
+- \texttt{CSP}, \texttt{CORS}, etc. 
+- \texttt{Allow-Control-Allow-Origin} released by the server
+
+\section{CSRF - Cross Site Request Forgery}
+Type of attack that lets the attacker execute code with victim's permissions on a website not managed by us, but on which the user is logged
+
+E.g., \texttt{fetch} call to the other site APIs.
+
+Solution: make the process that leads to the sensitive form stateful, by integrating a CSRF token as a hidden field in the form, or stored in the local storage.
+
+\texttt{SameSite} cookie restriction: String, Lax, None. Site this time referes to the TLD + protocol.
+
+\section{WS_3.07 - jpasta}
