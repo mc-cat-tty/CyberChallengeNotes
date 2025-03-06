@@ -7,7 +7,20 @@
 
 \section{NS_0.02 - Level2 - A well-known port}
 \begin{verbatim}
+docker exec -it challenge_files-node1-1 bash
 ss -uta
 ssh root@localhost
 \end{verbatim}
 
+\section{NS_0.03 - Level3 - One well-known and one non-standard port}
+\begin{verbatim}
+docker exec -it challenge_files-node1-1 bash
+wget localhost:80
+wget localhost:8000
+\end{verbatim}
+
+\section{NS_0.04 - Level4 - 3-way handshake}
+On node 2: \texttt{ip addr add 10.0.0.2/24 dev eth1}
+On node 1: \texttt{ip addr add 10.0.0.1/24 dev eth1; level4}
+
+\section{NS_0.05 - Level5 - A route to the flag}
