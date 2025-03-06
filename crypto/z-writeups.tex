@@ -1,0 +1,16 @@
+\section{}
+\begin{verbatim}
+import numpy as np
+
+s = "<input>"
+offset = ord('T')-ord('C')
+b = list(s.encode())
+v = np.asarray(b)
+v[idx_lower]-=ord('a'); v[idx_upper]-=ord('A')
+v[idx_lower | idx_upper]-=offset
+v[idx_lower | idx_upper]%=26
+v[idx_lower]+=ord('a'); v[idx_upper]+=ord('A')
+bytes(list(v))
+\end{verbatim} 
+
+Edo's sick solution: \texttt{bytes([(e-ord('A')-offset)\%26 + ord('A') if chr(e) in string.ascii_uppercase else (e-ord('a')-offset)\%26 + ord('a') if chr(e) in string.ascii_lowercase else e for e in b])}
