@@ -33,8 +33,8 @@ On node 1: \texttt{iptables -t nat -A POSTROUTING -o eth0 --source 10.0.0.0/24 -
 On node 1: \texttt{iptables -t nat -A PREROUTING -i eth0 -p tcp -d 192.168.123.0/24 --dport 2222 -j DNAT --to-destination 10.0.0.2:22}
 
 \section{NS_0.07 - Level7 - NAT2}
-On node 3: \texttt{ip addr add 172.16.44.200/24 dev eth0}
+On node 3: \texttt{ip addr add 172.16.44.200/24 dev eth0; ip route add 192.168.123.0/24 via 172.16.44.100}
 On node 2: \texttt{ip addr add 172.16.44.100/24 dev eth1}
-On node 1: \texttt{ip route add 172.16.44.0/24 via 10.0.0.2; iptables -t nat -A POSTROUTING --source 192.168.123.0/24 -o eth1 -j MASQUERADE}
-On host: \texttt{ssh root@172.16.44.200}
+On node 1: \texttt{ip route add 172.16.44.0/24 via 10.0.0.2}
+On host: \texttt{ip route add 172.16.44.0/24 via 192.168.123.123; ssh root@172.16.44.200}
 
