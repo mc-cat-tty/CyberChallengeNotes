@@ -1,40 +1,76 @@
 \chapter{Network Writeups}
-\section{NS_0.00 - Level0 - Setup}
+
+\section{Network Security 0}
+\subsection{NS_0.00 - Level0 - Setup}
 \texttt{docker compose logs}
 
-\section{NS_0.01 - Level1 - Nodes console}
+\subsection{NS_0.01 - Level1 - Nodes console}
 \texttt{docker exec -it <prefix>-node1-1 /bin/bash}
 
-\section{NS_0.02 - Level2 - A well-known port}
+\subsection{NS_0.02 - Level2 - A well-known port}
 \begin{verbatim}
 docker exec -it challenge_files-node1-1 bash
 ss -uta
 ssh root@localhost
 \end{verbatim}
 
-\section{NS_0.03 - Level3 - One well-known and one non-standard port}
+\subsection{NS_0.03 - Level3 - One well-known and one non-standard port}
 \begin{verbatim}
 docker exec -it challenge_files-node1-1 bash
 wget localhost:80
 wget localhost:8000
 \end{verbatim}
 
-\section{NS_0.04 - Level4 - 3-way handshake}
+\subsection{NS_0.04 - Level4 - 3-way handshake}
 On node 2: \texttt{ip addr add 10.0.0.2/24 dev eth0}
 On node 1: \texttt{ip addr add 10.0.0.1/24 dev eth1; level4}
 
-\section{NS_0.05 - Level5 - A route to the flag}
+\subsection{NS_0.05 - Level5 - A route to the flag}
 On node 2: \texttt{ip route add 192.168.123.0/24 via 10.0.0.1 dev eth0; level5}
 
-\section{NS_0.06 - Level6 - NAT1}
+\subsection{NS_0.06 - Level6 - NAT1}
 On node 1: \texttt{iptables -t nat -A POSTROUTING -o eth0 --source 10.0.0.0/24 -j MASQUERADE}
 
-\section{NS_0.07 - Level7 - NAT2}
+\subsection{NS_0.07 - Level7 - NAT2}
 On node 1: \texttt{iptables -t nat -A PREROUTING -i eth0 -p tcp -d 192.168.123.0/24 --dport 2222 -j DNAT --to-destination 10.0.0.2:22}
 
-\section{NS_0.07 - Level7 - NAT2}
+\subsection{NS_0.07 - Level7 - NAT2}
 On node 3: \texttt{ip addr add 172.16.44.200/24 dev eth0; ip route add 192.168.123.0/24 via 172.16.44.100}
 On node 2: \texttt{ip addr add 172.16.44.100/24 dev eth1}
 On node 1: \texttt{ip route add 172.16.44.0/24 via 10.0.0.2}
 On host: \texttt{ip route add 172.16.44.0/24 via 192.168.123.123; ssh root@172.16.44.200}
 
+\subsection{NS_0.09 - Docker networks}
+\begin{verbatim}
+services:
+  backend:
+    image: backend
+    build: ./backend/
+    networks:
+      - net
+
+  frontend:
+    image: frontend
+    build: ./frontend/
+    networks:
+      - net
+    ports:
+      - 8080:80
+
+networks:
+  net:
+\end{verbatim}
+
+\section{Network Security 1}
+\subsection{NS_1.01 - Sanity Check}
+\texttt{capinfos leopardo.pcapng}
+
+\subsection{NS_1.02 - No comment}
+\begin{verbatim}
+mkdir assets
+tshark -r leopardo.pcapng --export-objects http,assets
+\end{verbatim}
+
+Decomment deobfuscation function in \textit{assets/api.js}. 
+
+\texttt{echo "$(cat ./assets/api.js); console.log(api_password.deobf());" | node -}
