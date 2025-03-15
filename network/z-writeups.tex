@@ -73,4 +73,11 @@ tshark -r leopardo.pcapng --export-objects http,assets
 
 Decomment deobfuscation function in \textit{assets/api.js}. 
 
-\texttt{echo "$(cat ./assets/api.js); console.log(api_password.deobf());" | node -}
+\texttt{echo "\$(cat ./assets/api.js); console.log(api_password.deobf());" | node -}
+
+\subsection{NS_1.03 - Well-hidden ports}
+\begin{verbatim}
+tshark -r leopardo.pcapng -Y "tcp.port != 80 && tcp.port != 443" -w out.bin
+binwalk -e out.bin
+[specific file and encoding omitted]
+\end{verbatim}
