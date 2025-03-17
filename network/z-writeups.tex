@@ -99,3 +99,10 @@ for s in $STREAMS; do tshark -r leopardo.pcapng -Y "tcp.stream == $s" -x | grep 
 \subsection{NS_1.07 - Dreamliner}
 Too funny to be scriped :)
 
+\subsection{NS_2.04 - Gamers secret}
+\begin{verbatim}
+tshark -r challenge.pcap -o tls.keylog_file:challenge-ssl.keys -Y "websocket && frame.number >= 22144 && frame.number <= 22677" -T fields -e text > out.txt
+python3 gamers_secret.py out.txt
+\end{verbatim}
+
+Check out \textit{gamers_secret.py} in \textit{scripts} folder.
