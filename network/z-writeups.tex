@@ -81,3 +81,21 @@ tshark -r leopardo.pcapng -Y "tcp.port != 80 && tcp.port != 443" -w out.bin
 binwalk -e out.bin
 [specific file and encoding omitted]
 \end{verbatim}
+
+\subsection{NS_1.04 - We are the robots}
+\texttt{tshark -r leopardo.pcapng -Y "tcp matches \"/~[a-z]+\" && tcp contains HTTP" -x | grep -A2 CCIT}
+
+\subsection{NS_1.05 - Name Swap}
+\begin{verbatim}
+export STREAMS=( $(tshark -r leopardo.pcapng -Y "tcp matches \"/~admin2\"" -T fields -e tcp.stream) )
+for s in $STREAMS; do tshark -r leopardo.pcapng -Y "tcp.stream == $s" -x | grep -A3 CCIT; done
+\end{verbatim}
+
+\subsection{NS_1.06 - A naughty attacker}
+\texttt{tshark -r leopardo.pcapng -Y "tcp contains flag.zip" -x | awk -F' ' '{print $NF}' | tr -d "\n" | tr -d "."} + https://cyberchef.org
+
+\texttt{tshark -r leopardo.pcapng -Y "tcp contains flag.zip" -x} + https://crackstation.net
+
+\subsection{NS_1.07 - Dreamliner}
+Too funny to be scriped :)
+
