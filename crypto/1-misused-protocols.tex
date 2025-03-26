@@ -1,0 +1,15 @@
+\chapter{Misused Protocols}
+\section{DES Weaknesses}
+Weak keys: keys such that D=E. They are often blacklisted (?)
+
+Semi-weak keys: keys such that D(k1, E(k2, m))
+
+2DES has been theoretically proposed but broken since just $2^{57}$ bruteforce attempts are required to find the right key.
+Not $2^{112}$ as expected.
+
+3DES is mainly used in 2 different modes: DDD and DED, depending if three or two keys are used.
+In the latter case a key is recycled for both the D and E block.
+
+AES has been selected during an american competition. The original name of the algo was Rijndael.
+
+AES is usually attacked non in the inner part (cipher) but in the boundary configuration (protocol).
