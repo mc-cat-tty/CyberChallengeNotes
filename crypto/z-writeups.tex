@@ -22,3 +22,19 @@ Edo's sick solution: \texttt{bytes([(e-ord('A')-offset)\%26 + ord('A') if chr(e)
 
 \section{CR_1.03 - Dropped}
 \texttt{''.join((''.join((c[i+3], c[i+1], c[i+2], c[i])) for i in range(0, len(c), 4)))}
+
+\section{CR_1.04 - Secure Padding}
+Idea: crafting arbitrary blocks and slide the padding to disclose one char at a time. \\
+See: \textit{scripts/secure_padding.py}
+
+\section{CR_1.05 - Once Too Many}
+Problem: Reuse of OTP \\
+\texttt{mtp message.enc}
+
+\section{CR_1.06 - Benchmark}
+Timing side-channel attack. \\
+See: \textit{scripts/benchmark.py}
+
+\section{CR_1.07 - See You In The Center}
+Meet in the middle attack. \\
+See: \textit{scripts/mitm.py}
