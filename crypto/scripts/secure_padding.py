@@ -8,7 +8,7 @@ HOST = "padding.challs.cyberchallenge.it"
 PORT = 9030
 SEP = b'\n'
 BLOCK_SIZE = 16
-KEY_LEN = BLOCK_SIZE*2-1
+KEY_LEN = BLOCK_SIZE*2
 
 PASS_PATTERN = re.compile(':\s(\w+)\s')
 KEY_ALPHABET = printable
@@ -44,7 +44,7 @@ def main():
   mirrored_block = 'a'*BLOCK_SIZE
   flag = ''
 
-  while padding_len > 0:
+  while padding_len > 1:
     padding_len -= 1
     mirrored_block = mirrored_block[1:]
     # print(padding_len, mirrored_block)
