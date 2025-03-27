@@ -1,0 +1,90 @@
+\chapter{Symmetric Crypto}
+
+Misused protocols are often the key!
+
+\section{DES Weaknesses}
+Weak keys: keys such that D=E. They are often blacklisted (?)
+
+Semi-weak keys: keys such that D(k1, E(k2, m))
+
+2DES has been theoretically proposed but broken since just $2^{57}$ bruteforce attempts are required to find the right key.
+Not $2^{112}$ as expected.
+
+3DES is mainly used in 2 different modes: DDD and DED, depending if three or two keys are used.
+In the latter case a key is recycled for both the D and E block.
+
+AES has been selected during an american competition. The original name of the algo was Rijndael.
+
+AES is usually attacked non in the inner part (cipher) but in the boundary configuration (protocol).
+
+\section{Stream Ciphers}
+Objective: use a cipher to encrypt a stream of data of arbitrary length. Mode of operations solve this.
+
+\subsection{Electronic Codebook Mode (ECB)}
+A naive idea is to split the data stream into 128-bit blocks. Each block encrypted separetely.
+This is vulnerable to statistical analysis. Since the same plaintext block will give the same ciphertext block.
+See: ECB Linux Penguin
+
+Encryption Oracle: service that, given a plaintext, returns the corresponding ciphertext using the same key.
+We can use ECB ciphers as long as we know that the input text is less or equal the size of a single block.
+
+\subsection{Padding}
+Padding: last block is often not fully filled. Fill the ramaining space with some data to align it to the desired length (e.g., 16 bytes).
+
+Problem: cannot disambiguate between padding and plaintext at decipher time.
+
+Idea: PKCS7. Fill remaining space with the length of the padding; last value will represent the padding length.
+Inconvenience if the payload is aligned to the block size, since a new block will be allocated with the sole purpose of carrying padding length.
+
+\subsection{Cipher Block Chaining (CBC) Mode}
+Idea: make each ciphertext block dependent on the previous one, to scramble more data and solve the problem of same plaintext blocks encrypted in the same way.
+
+Initialization vector (IV) is used (and should be changed each time) to make less predibile first block's encryption.
+Sometimes a nonce, aka a sequential value, is used.
+
+Using the key as both the key and the IV is not a good idea, it is a weak initialization.
+
+\subsubsection{Padding Oracle}
+Problem in odler Java versions on AES CBC + PKCS7: padding oracle.
+Wether the padding was correct or not was disclosed (leaked) by the server.
+This allows full disclosure of the full plaintext: starting from the first IV byte, we bruteforce it with the objective of making it result 1 in the plaintext.
+If we find it, the padding oracle doesn't raise any exception. We then work out the value spit out from the encryption block.
+We can now mould the first byte to be 2 and guess the second one, the oracle will tell us when it is correct.
+Continuing... all the plaintext bytes will be disclosed.
+
+\subsubsection{Bit Flipping}
+In CRT modes the IV is public, aka is under control of the attacker.
+This can be exploited during the decryption phase to perform a bit flip attack.
+Bit flipping the ciphertext is also possible, but due confusion-diffusion principles it is harder to finely flip a single bit without creating garbage blocks.
+Meaning, the desired bit can be flipped, but with some side effects.
+
+On the contrary, a bit flip in the IV leads to a finely targeted bit flip in the plaintext.
+Note that this is possible just for the first plaintext block.
+Also note that arbitrary bit flips mean that, given that the original plaintext is known, it can be manipulated arbitrarily to turn it a certain value; e.g., turn the string "lollo" into "admin".
+
+Remember: the XOR is "moudable"
+
+Mitigation: sign the message or send it along with the hash of the message to prevent tampering
+
+\subsection{Counter (CTR) Mode}
+Streaming cipher. Extremely mouldable.
+
+Idea: this time the core idea is to generate a kinda key of the same length of the plaintext (see perfect security definition), but without exchanging a key of such length.
+Tries to imitate the OTP cipher.
+
+How? it generates random data passing a nonce + counter on an AES block cipher. The output of AES blocks constitues the OTP "key".
+This output is then xored with the plaintext to obtain the ciphertext.
+
+Notice also that the output is cut at the length of the original text. This can disclose information about the content of the plaintext: see yes vs no length :)
+
+If the nonce is kept constant, the encryption function will act as decryption for a given ciphertext:
+\begin{verbatim}
+c = block_out ^ p
+c ^ block_out = p -> will give original plaintext, since block_out is constant
+\end{verbatim}
+
+\subsection{Galois Counter Mode}
+AES CTR + signature
+
+\subsection{ChaCha20}
+Variant of Salsa20 published in 2008. Like AES CTR. Extremely mouldable.

@@ -8,7 +8,7 @@ HOST = "padding.challs.cyberchallenge.it"
 PORT = 9030
 SEP = b'\n'
 BLOCK_SIZE = 16
-KEY_LEN = BLOCK_SIZE*2
+KEY_LEN = BLOCK_SIZE*2-1
 
 PASS_PATTERN = re.compile(':\s(\w+)\s')
 KEY_ALPHABET = printable
