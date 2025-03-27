@@ -15,7 +15,7 @@ KEY_ALPHABET = printable[:-5]
 #   return int(cycles)
 
 def get_pass_timings(c, passwords):
-  c.sendline(b'\n'.join(p.encode() for p in passwords))
+  c.sendlines(passwords)
   cycles_list = []
   while len(cycles_list)<len(passwords):
     try: rdata = c.recvline_contains('cycles').decode()

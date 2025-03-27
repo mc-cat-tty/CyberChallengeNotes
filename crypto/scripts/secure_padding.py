@@ -50,6 +50,7 @@ def main():
     # print(padding_len, mirrored_block)
 
     for c in KEY_ALPHABET:
+      print('.', end='', flush=True)
       p = mirrored_block+c + 'a'*padding_len
       ep = get_enc_pass(p, s)
       cp = chunk_pass(ep)
