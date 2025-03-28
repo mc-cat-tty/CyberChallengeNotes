@@ -38,3 +38,17 @@ See: \textit{scripts/benchmark.py}
 \section{CR_1.07 - See You In The Center}
 Meet in the middle attack. \\
 See: \textit{scripts/mitm.py}
+
+\section{CR_1.10 - notadmin}
+Idea: IV bit flipping \\
+
+Zero-length username, get the token.
+\begin{verbatim}
+token = bytes.fromhex('<get-token>')
+mask = bytes([0]*14 + [1] + [0]*(len(token)-13))
+new_token = [m^t for m, t in zip(mask, token)]
+bytes(new_token).hex()
+\end{verbatim}
+
+\section{CR_1.09 - TwoFlags}
+Idea: XOR together the two files
