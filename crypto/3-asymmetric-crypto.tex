@@ -1,0 +1,71 @@
+\chapter{Asymmetric Cryptography}
+
+All the asymmetric encryption is based on: \texttt{m = plaintext message; c = enc(m, key[pub]); m = dec(c, key[priv])}.
+Public e private key can be swapped.
+
+Idea: one-way trap door -> polynomial function for enc, NP-hard/NP-complete for dec if private key is not known, otherwise polynomial
+
+\section{Modular Arithmetic Refresher}
+\subsection{Theorems on Factorization}
+Factorization: $n = p_1^{n_1} \cdot p_1^{n_2} \cdot \dots p_1^{n_n}$ \\
+Prime numbers can be factorized as $p = p \cdot 1$
+
+See: $Z_n$ groups, gcd with euclidean algo, gcd and lcd as factors set operations, extended euclidean algo (Bezout's identity), congruence
+
+Some ops can be defined on $Z_n$: an op must be closed on the set, meaning that its results must belong to the set of the operands.
+Plus, minus, and times give as result the operation applied to the reminders.
+
+$Z_n$ is a closed field on sum. A value that gives zero in modulo can always be found.
+However, $Z_n$ is not a closed field on multiplication. A value that gives 1 when multiplied in modulo can not exist; think about value $2$ in $Z_4$ set.
+
+$Z_n - {0}$ with $n$ prime number, the field is closed also on multiplication.
+
+$\(Z_p, +, \cdot\)$
+
+It turns out that (matemagica [IT]) $Z_n$ values that do have a modular inverse are the ones thare are coprime with the $n$ value.
+
+$\phi(n)$ is the Euler totient, and outputs the number of numbers coprime with $n$.
+
+How to find the multiplicative inverse of a number $n$ in $Z_N$?
+we can use the xgcd: $xgcd(n, N) = (r, \alpha, \beta); r = (\alpha * n + \beta * N) \% N$
+If xgcd gives us a reminder of 1, the $\alpha$ value is the multiplicative inverse we were looking for.
+
+Euler totient can be easily computed as $\phi(n) = (q-1) \cdot (p-1)$ TODO: check
+
+See: Little Fermat theorem, Fermat-Euler theorem
+
+\subsection{Cyclic Sets}
+$Z_p$ is a $Z$ set with $p$ prime. $Z_p^*$ is the field $(Z_p, *)$.
+
+A generator $g$ of a set $Z_n$ is a number such that if elevate to a number $i \in Z_p^*$, generates all original values of $Z_n$.
+
+Generators can be used to build one-way functions: $A = g^a mod p$ is easy to compute, while $log_g A = a (mod p)$ is not.
+
+\subsection{Chinese Reminder Theorem}
+Given a system of equations:
+ - x = a mod p_1
+ - x = b mod p_2
+
+Can be found $x_1$ and $x_2$ such that $\bar x = x_1 p_1 + x_2 p_2$
+
+\section{Diffie-Hellman}
+Four transactions. Math equivalent of a chest with double lock that is locked in turn to make content safe during transportation.
+The common private key k is holded by both communication actors. The key has an entropy that is too low.
+
+For this reason, the key is usually hashed.
+
+This is vulnerable to MITM attacks.
+
+Polig-Hellman based attack: A and B can be worked out by eve.
+
+To avoid this attack strong prime numbers are used: $p = 2q+1$, $q$ prime. $\phi(p) = 2q$
+
+Security bits. In sym enc, sec bit \approx key length, while in asym enc, sec bit \approx bits needed to represent the number $p$.
+
+DH is not a cryptographic algo, it instead is a secret exchange algo.
+The one-way function is the discrete log.
+
+See: Adleman extension to make it useful for asymmetric encryption
+
+\section{RSA}
+TODO
