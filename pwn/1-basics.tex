@@ -1,0 +1,115 @@
+\chapter{Basic Background}
+
+\section{Build Process}
+Trick: search options in man with \texttt{/} -> \texttt{^\s+-<option>}
+
+Escape sequences, can be viewd with: \texttt{ls --color=yes ~ | more}.
+Be aware that this can create problems if we perform a grepped search.
+
+First phase is preprocessing. The result can be viewed with \texttt{gcc -E ...}. This phase expands preprocessor's macros.
+
+Second phase generates assembly instructions: \texttt{gcc -S ...}. AT&T vs Intel syntax (hint: Intel uses squared parenthesis).
+
+BP - Base Pointer - register stores the frame pointer. Must be saved on the stack at each invocation.
+EDI, RSI, RDX are registers for argc, argv, and envp.
+RDI is the register that stores the first argument of a function.
+Data from static section is loaded as offset from the instruction pointer: \texttt{.LC0(\%rip)}.
+This feature is called PIE; disabling it implies ASLR disabled.
+
+Virtual memory doesn't randomize the .
+
+What does it mean \texttt{@PLT} in function calls? Procedure Linkage Table enables dynamic linking of functions.
+By applying this tag at the end of the name of the function, the symbol is substituted at runtime.
+See: trampolines, aka small piece of assembly code that, at first invocation, substitutes the symbol of the dynamically linked function with its concrete address, after the lib is loaded by the dynamic linker.
+
+\texttt{.cfi_xxx} - Call Frame Information - are markers that provide debugging informations regarding functions start and end points.
+
+Third phase, generates object code: \texttt{gcc -c ...}.
+
+ELF - Executable Linkable Format - is a file format invented at Sun Microsystems (today Oracle).
+LSB - Lowest Significative Bit - means Little Endian.
+Relocatable executables can be loaded at any memory address.
+An executable is stripped if the symbol table is cleaned up from symbol-type-location entries.
+After \texttt{-c} only static symbols are present. In binary file also dynamic symbols are included.
+Moreover, debugging symbols can be included with \texttt{-g} option.
+
+\texttt{objdump --disassemble main.o | less -MRS}. Main function starts at address \texttt{000...00}.
+
+Last phase is linking: static to combine multiple object files in one self-contained executable, otherwise (dynamic linking) to substitute function calls with the respective externally linked function (implied need for runtime linking).
+
+Linux executables have an associated interpeter, exactly as Bash and Python scripts, executables use \texttt{ld.so} (dynamic linker/laoder) to create the process image.
+Process image consists of data, text, stack, heap, and kernel space.
+Each process has 3Gb of code space and 1Gb of kernel space; kernel space is used to execute system calls without overhead (kernel code is however not replicated thanks to pagination).
+
+\section{ELF}
+ELF file is meant to contain executable, data, and libraries.
+
+Three types of ELF:
+- relocatable file -> can be linked with other object files to create an executable. Must contain an entry-point (main).
+- executable
+- shared object
+
+ELF is made up of different sections. Structured as follow:
+- ELF header
+- header table
+- text: instructions
+- bss: uninitialized data, meaning their value doesn't have to be stored. Filled with 0 at runtime
+- data, data1: initialized variables
+- rodata, rodata1: constant variables
+- symtab: symbol tables
+- dynamic: linking information
+- plt: section of function trampolines
+- plt.got: section of trampolines for global variables exposed by variables
+- \dots
+
+\texttt{hexdump -Cv} shows content of a file in hex mixed with ASCII-art. \texttt{-v} turns off compact view (not printing lines of repeaded multiple times).
+
+Sections can be viewed with \texttt{readelf -a <binary> | less -MRS}. Every single section can be dumped with \texttt{readelf -j <section-name> <binary-name>}.
+
+\texttt{objdump -t <binary>} prints the static symbols contained in a binary file. F means function, TODO: other flags; next to it the section where it is stored. \texttt{cxa_finalizer} e \texttt{cxa_initializer} are exit handlers (?).
+
+\texttt{objdump -T <binary>} prints dynamic symboled contained in a binary file.
+Dynamic function specify a version of the library needed to execute.
+
+\texttt{objdump -W <binary>} prints debug symbols (DWARF format).
+DWARF format stores debug symbols as a tree: each file has function childs, each function is a node ad stores attributes as childs.
+See: \texttt{locals} command in gdb
+
+\texttt{strip -S <binary>} removes debug symbols. \texttt{strip --strip-all <binary>} removes everything, also compilation symbols.
+See difference between step (next C statement), stepi (next asm instruction), and their next counterparts. Step dives into calls, while next do not.
+
+\section{x86 Architecture}
+Meant to be backward-compatible, starting from register names: taking register A as an example, AL was the name of 8-bit version, AL+AH was named AX (16 bit version), EAX doubles the size of AX, making it a 32-bit register.s
+
+6 general purpose registers (EAX, EBX, ECX, EDS, ESI, EDI), plus 2 single purpose registers (EBP, ESP).
+
+In 64 bits machines, RAX is the 64-bit version of EAX. With x86_64, the register file changed completely: R8-R15 have been introduced; XMM0-XMM15 have been introduced for SIMD instructions.
+CS (Code base address), SS (Stack base address), and DS (Data base address) are additionally single purpose registers.
+
+Basic ISA:
+- mov
+- lea
+- push: pushes 4 bytes value
+- pop: pop 4 bytes value
+- jmp
+- cmp: turns on flags in architecture state bitvector
+- j<cond>
+
+Format operator \texttt{\%p} prints prints addresses. Be aware of padding.
+
+The memory of a process is called "image". Segments are the running equivalent of executable sections.
+
+Stack pointer (SP) points to the tail of the stack; head value is constant and static (\texttt{0xc000..0}).
+Base pointer (BP) points to the base of the current stack frame.
+
+Function prologue moves ebp to esp, the previous frame pointer is popped and stored in ebp, then return is performed (return address found as first value in the stack).
+
+Calling convention: first 6 args are passed with registrs (which registers? look at specification), other parames are pushed on the stack.
+
+Red zone is a 128 bytes space pre-allocated to be used by leaf functions. This allows to avoid EBP push and explicit stack allocation.
+This saves up time; doesn't create any problem because the size of the stack frame is known at compile time.
+
+\texttt{cdecl} (C declaration) is the calling convention used in many x86 compilers:
+- return value is stored in EAX register
+- the caller should clean up just returned stack frame (but memset costs time, avoided in current architectures)
+- function args are pushed in right-to-left order
