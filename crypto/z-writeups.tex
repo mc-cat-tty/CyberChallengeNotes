@@ -1,6 +1,8 @@
 \chapter{Crypto Writeups}
 
-\section{CR_1.01 - Spin Arovnd}
+
+\section{Cryptography 1}
+\subsection{CR_1.01 - Spin Arovnd}
 \begin{verbatim}
 import numpy as np
 
@@ -17,35 +19,35 @@ bytes(list(v))
 
 Edo's sick solution: \texttt{bytes([(e-ord('A')-offset)\%26 + ord('A') if chr(e) in string.ascii_uppercase else (e-ord('a')-offset)\%26 + ord('a') if chr(e) in string.ascii_lowercase else e for e in b])}
 
-\section{CR_1.02 - Planet Matrix}
+\subsection{CR_1.02 - Planet Matrix}
 \url{https://planetcalc.com/7751/}
 
-\section{CR_1.03 - Dropped}
+\subsection{CR_1.03 - Dropped}
 \texttt{''.join((''.join((c[i+3], c[i+1], c[i+2], c[i])) for i in range(0, len(c), 4)))}
 
-\section{CR_1.04 - Secure Padding}
+\subsection{CR_1.04 - Secure Padding}
 Idea: crafting arbitrary blocks and slide the padding to disclose one char at a time. \\
 See: \textit{scripts/secure_padding.py}
 
-\section{CR_1.05 - Once Too Many}
+\subsection{CR_1.05 - Once Too Many}
 Problem: Reuse of OTP \\
 \texttt{mtp message.enc}
 
-\section{CR_1.06 - Benchmark}
+\subsection{CR_1.06 - Benchmark}
 Timing side-channel attack. \\
 See: \textit{scripts/benchmark.py}
 
-\section{CR_1.07 - See You In The Center}
+\subsection{CR_1.07 - See You In The Center}
 Meet in the middle attack. \\
 See: \textit{scripts/mitm.py}
 
-\section{CR_1.08 - Redacted}
+\subsection{CR_1.08 - Redacted}
 See: \textit{scripts/redacted.py}
 
-\section{CR_1.09 - TwoFlags}
+\subsection{CR_1.09 - TwoFlags}
 Idea: XOR together the two files
 
-\section{CR_1.10 - notadmin}
+\subsection{CR_1.10 - notadmin}
 Idea: IV bit flipping \\
 
 Zero-length username, get the token.
@@ -56,12 +58,15 @@ new_token = [m^t for m, t in zip(mask, token)]
 bytes(new_token).hex()
 \end{verbatim}
 
-\section{CR_1.11 - Padding Oracle}
+\subsection{CR_1.11 - Padding Oracle}
 See: \textit{scripts/padding_oracle.py}
 
 
-\section{CR_1.14 - danceable}
+\subsection{CR_1.14 - danceable}
 See \textit{scripts/danceable.py}
 
-\section{CR_3.08 - linear dsa}
+\section{Cryptography 2}
+
+\section{Cryptography 3}
+\subsection{CR_3.08 - linear dsa}
 See \textit{scripts/linear_dsa.py}
