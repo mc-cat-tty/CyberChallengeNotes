@@ -33,6 +33,8 @@ An executable is stripped if the symbol table is cleaned up from symbol-type-loc
 After \texttt{-c} only static symbols are present. In binary file also dynamic symbols are included.
 Moreover, debugging symbols can be included with \texttt{-g} option.
 
+\texttt{-g} option adds to the ELF file a \textit{.debug} section containing info for symbolic debugging and \textit{.line} section that stores association between source code lines and binary instructions.
+
 \texttt{objdump --disassemble main.o | less -MRS}. Main function starts at address \texttt{000...00}.
 
 Last phase is linking: static to combine multiple object files in one self-contained executable, otherwise (dynamic linking) to substitute function calls with the respective externally linked function (implied need for runtime linking).
@@ -110,6 +112,72 @@ Red zone is a 128 bytes space pre-allocated to be used by leaf functions. This a
 This saves up time; doesn't create any problem because the size of the stack frame is known at compile time.
 
 \texttt{cdecl} (C declaration) is the calling convention used in many x86 compilers:
+- up to 6 args, registers are used, the args exceeding 6 args, the rest of em is pushed on the stack.
+- function args are pushed in right-to-left order (opposite order wrt calling order). See: https://www.ired.team/miscellaneous-reversing-forensics/windows-kernel-internals/linux-x64-calling-convention-stack-frame
 - return value is stored in EAX register
 - the caller should clean up just returned stack frame (but memset costs time, avoided in current architectures)
-- function args are pushed in right-to-left order
+
+See: https://pwn.college
+
+The heap is the memory area used to store data that must outlive function calls; these data can be dynamically allocated.
+Heap allocation is slower than stack allocation since stack is predictable and computable at build-time, while heap can be fragmented, resulting in a linear serach for space.
+
+\section{Debugging}
+Debugging is the process of finding and (potentially) fix an executable by a series of means: dynamic analysis, profiling (syscalls, open network connections), and static analysis.
+
+Given a binary file we can:
+ - check if the file is executable
+ - check target architecture (\texttt{file}/\texttt{readelf})
+ - collect symbols (\texttt{readelf}) and strings (\texttt{strings})
+ - check if there is a running process associated with the program
+ - compare the SHA of the binary with known samples
+ - identify function names and libraries
+
+\texttt{strings} is tunable regarding the min and max length of the strings, the section to inspection, etc.
+
+\texttt{readelf} can be used to easily read the header file of a ELF binary. 
+
+\section{GDB}
+See: GDB scripting
+
+Editing the environment:
+\begin{verbatim}
+path <dir>
+show paths
+show environment [<var>]
+set environment <var> <value>
+unset environment <var>
+\end{verbatim}
+
+It sometimes useful to manipulate the environment passed to a binary.
+
+Setting breakpoints:
+\begin{verbatim}
+  break <location>
+  break  # next instruction
+  break <location> [if <condition>]
+\end{verbatim}
+
+Breakpoints are usually implemented as interrupts in x86 architecture: a dedicated instruction is used to replace the instruction where we place the breakpoint.
+
+A \textit{watchpoint} is the equivalent of a breakpoint... but for memory: the are triggered when a specific memory area is accessed in some mode (R or W).
+
+A \textit{catchpoint} allows the debugger to stop the program when a certain event (exception, binary loading, etc.) occurs.
+
+Hint: if a binary is compiled with PIE option, opt for displacements instead of addresses (they will change depending on the execution due to ASLR).
+
+Displaying stack frames:
+\begin{verbatim}
+  frame  # Print current function frame content
+  info frame  # Prints current frame information
+\end{verbatim}
+
+\texttt{registers}, on the other hand, prints registers status
+
+See: GEF, PwnGDB
+
+\texttt{checksec <filename>} or, alternatively, pwntools version: \texttt{pwn checksec <filename>}
+
+\texttt{x/<format>} (short for \texttt{display}) prints the data on the stack with the format specified in the \texttt{<format>} field.
+
+Tipically format is \texttt{1gx}. 1 value, g for giant, x for hex.
