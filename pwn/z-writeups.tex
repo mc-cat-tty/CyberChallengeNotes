@@ -1,0 +1,14 @@
+\chapter{Pwn Writeups}
+
+\section{Software Security 0}
+\subsection{SS_0.01 - The safe}
+Password can be found in plaintext with: \texttt{readelf -p .rodata the_safe}
+
+\subsection{SS_0.02 - acrostic}
+Literally: \texttt{objdump -d acrostic}
+
+\section{SS_0.03 - dissection}
+\texttt{readelf -S dissection | grep CCI -A 17 | sed -n "p;n" | awk '{print $2}' | tr -d '\n'}
+
+\section{SS_0.04 - volatility}
+\texttt{gdb --batch --command=volatility.gdb volatility}
