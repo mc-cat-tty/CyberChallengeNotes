@@ -7,11 +7,18 @@ Password can be found in plaintext with: \texttt{readelf -p .rodata the_safe}
 \subsection{SS_0.02 - acrostic}
 Literally: \texttt{objdump -d acrostic}
 
-\section{SS_0.03 - dissection}
+\subsection{SS_0.03 - dissection}
 \texttt{readelf -S dissection | grep CCI -A 17 | sed -n "p;n" | awk '{print $2}' | tr -d '\n'}
 
-\section{SS_0.04 - volatility}
-\texttt{gdb --batch --command=volatility.gdb volatility}
+\subsection{SS_0.04 - volatility}
+\texttt{gdb --batch --command=scripts/volatility.gdb volatility}
 
-\section{SS_0.05 - piecewise}
+\subsection{SS_0.05 - piecewise}
 See: \textit{scripts/piecewise.py}
+
+\section{Software Security 1}
+\subsection{SS_1.01 - NextGen Safe}
+\texttt{gdb --batch -x scripts/nextgen_safe.gdb nextgen_safe}
+
+\subsection{SS_1.02 - Slow Printer}
+\texttt{gdb --batch -x slow_printer.gdb slow_printer}
