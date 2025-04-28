@@ -2,23 +2,42 @@
 
 \section{Software Security 0}
 \subsection{SS_0.01 - The safe}
-Password can be found in plaintext with: \texttt{readelf -p .rodata the_safe}
+Idea: password can be found in plaintext in \texttt{.rodata} section.
+
+Run: \texttt{readelf -p .rodata the_safe}
 
 \subsection{SS_0.02 - acrostic}
 Literally: \texttt{objdump -d acrostic}
 
 \subsection{SS_0.03 - dissection}
-\texttt{readelf -S dissection | grep CCI -A 17 | sed -n "p;n" | awk '{print $2}' | tr -d '\n'}
+Idea: list all sections contained in the provided ELF file. The flag is encoded in sections name.
+
+Run: \texttt{readelf -S dissection | grep CCI -A 17 | sed -n "p;n" | awk '{print $2}' | tr -d '\n'}
 
 \subsection{SS_0.04 - volatility}
-\texttt{gdb --batch --command=scripts/volatility.gdb volatility}
+Idea: put a breakpoint at the beginning of one of the functions that receive the flag as argument, then print the first and only arg.
+
+Run: \texttt{gdb --batch --command=scripts/volatility.gdb volatility}
 
 \subsection{SS_0.05 - piecewise}
 See: \textit{scripts/piecewise.py}
 
 \section{Software Security 1}
 \subsection{SS_1.01 - NextGen Safe}
-\texttt{gdb --batch -x scripts/nextgen_safe.gdb nextgen_safe}
+Idea: the function that prints the flag is not called, however is packed into the binary (check with \texttt{readelf -p .strtab nextgen_safe}, or \texttt{info functions} inside GDB).
+Sooo... just call it from GDB.
+
+Run: \texttt{gdb --batch -x scripts/nextgen_safe.gdb nextgen_safe}
 
 \subsection{SS_1.02 - Slow Printer}
-\texttt{gdb --batch -x slow_printer.gdb slow_printer}
+Idea: open program in GDB and intercept every syscall to \texttt{clock_nanosleep}.
+As soon as the system call is catched, set \texttt{RDX} register to \texttt{null}.
+\texttt{RDX} register corresponds to \texttt{const struct timespec *t} parameter of \texttt{clock_nanosleep} function (ref. \href{https://man7.org/linux/man-pages/man2/clock_nanosleep.2.html}).
+
+Run: \texttt{gdb --batch -x slow_printer.gdb slow_printer}
+
+Alternatives:
+\begin{itemize}
+  \item skip \texttt{clock_nanosleep} calls patching the binary with NOPs (e.g., with Ghidra)
+  \item DLL (\texttt{LD_PRELOAD}) injection
+\end{itemize}
