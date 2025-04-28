@@ -41,3 +41,14 @@ Alternatives:
   \item skip \texttt{clock_nanosleep} calls patching the binary with NOPs (e.g., with Ghidra). See \textit{scripts/slow_printer_patched}
   \item DLL (\texttt{LD_PRELOAD}) injection
 \end{itemize}
+
+\subsection{SS_1.03 - Flag Checker}
+Run code in GDB: \texttt{gdb flag_checker}.
+Start it with a string as first arg: \texttt{start test}.
+A SEGV will occur; backtracing it (\texttt{bt}) show an infinite recursive call.
+
+Dissecting the binary (eg., in Ghidra) shows a function that computes the cumulative sum (stored in its third arg) of the first argument passed to the function (argv[1]).
+Each character of the cumsum is tested against what presumably is each character of the flag's cumsum.
+By reading the memory location where this array of integers is stored and reversing the cumsum the flag is disclosed.
+
+See: \textit{scripts/flag_checker.py}
