@@ -38,6 +38,6 @@ Run: \texttt{gdb --batch -x slow_printer.gdb slow_printer}
 
 Alternatives:
 \begin{itemize}
-  \item skip \texttt{clock_nanosleep} calls patching the binary with NOPs (e.g., with Ghidra)
+  \item skip \texttt{clock_nanosleep} calls patching the binary with NOPs (e.g., with Ghidra). See \textit{scripts/slow_printer_patched}
   \item DLL (\texttt{LD_PRELOAD}) injection
 \end{itemize}
