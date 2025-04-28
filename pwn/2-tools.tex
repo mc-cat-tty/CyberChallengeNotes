@@ -1,0 +1,67 @@
+\chapter{SRE/Debugging Tools}
+
+\section{Debugging}
+Debugging is the process of finding and (potentially) fix an executable by a series of means: dynamic analysis, profiling (syscalls, open network connections), and static analysis.
+
+Given a binary file we can:
+ - check if the file is executable
+ - check target architecture (\texttt{file}/\texttt{readelf})
+ - collect symbols (\texttt{readelf}) and strings (\texttt{strings})
+ - check if there is a running process associated with the program
+ - compare the SHA of the binary with known samples
+ - identify function names and libraries
+
+\texttt{strings} is tunable regarding the min and max length of the strings, the section to inspection, etc.
+
+\texttt{readelf} can be used to easily read the header file of a ELF binary. 
+
+\section{GDB}
+See: GDB scripting
+
+Editing the environment:
+\begin{verbatim}
+path <dir>
+show paths
+show environment [<var>]
+set environment <var> <value>
+unset environment <var>
+\end{verbatim}
+
+It sometimes useful to manipulate the environment passed to a binary.
+
+Setting breakpoints:
+\begin{verbatim}
+  break <location>
+  break  # next instruction
+  break <location> [if <condition>]
+\end{verbatim}
+
+Breakpoints are usually implemented as interrupts in x86 architecture: a dedicated instruction is used to replace the instruction where we place the breakpoint.
+
+A \textit{watchpoint} is the equivalent of a breakpoint... but for memory: the are triggered when a specific memory area is accessed in some mode (R or W).
+
+A \textit{catchpoint} allows the debugger to stop the program when a certain event (exception, binary loading, etc.) occurs.
+Especially useful to intercept system calls.
+
+Hint: if a binary is compiled with PIE option, opt for displacements instead of addresses (they will change depending on the execution due to ASLR).
+
+Displaying stack frames:
+\begin{verbatim}
+  frame  # Print current function frame content
+  info frame  # Prints current frame information
+\end{verbatim}
+
+\texttt{info registers}, on the other hand, prints registers status. \texttt{p <reg>} prints a specific register
+
+See: GEF, PwnGDB
+
+\texttt{checksec <filename>} or, alternatively, pwntools version: \texttt{pwn checksec <filename>}
+
+\texttt{x/<format>} (short for \texttt{display}) prints the data on the stack with the format specified in the \texttt{<format>} field.
+
+Tipically format is \texttt{1gx}. 1 value, g for giant, x for hex. \texttt{s} can be used to print strings; \texttt{b} to print bytes.
+
+\texttt{info functions} prints functions listed in the symbol table.
+
+\section{Ghidra}
+\textit{Thunk function} is a function whose only purpose is to pass control to another function.
