@@ -85,3 +85,9 @@ Use example:
 Brown functions are the ones used by the program. \texttt{entry0} is the entrypoint.
 Functions that start with \texttt{fcn} are defined by the program itself.
 \texttt{sym.imp} means the function has been imported from C std lib.
+
+In order to decompile even with Radare2 install \texttt{r2dec} plugin, then:
+\begin{verbatim}
+  s main -> performs seek to the main function
+  pdda -> starts decompiling from the current address
+\end{verbatim}
