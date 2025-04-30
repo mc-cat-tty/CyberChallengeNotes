@@ -52,3 +52,14 @@ Each character of the cumsum is tested against what presumably is each character
 By reading the memory location where this array of integers is stored and reversing the cumsum the flag is disclosed.
 
 See: \textit{scripts/flag_checker.py}
+
+\subsection{SS_1.04 - Unbreakable AES}
+By disassembling the code three internal functions are found \texttt{main}, \texttt{encrypt} and \texttt{ror}.
+
+\texttt{main} function simply performs file handling operations (basically opening), as well as key validity checking (only alphanum chars).
+
+If successful, \texttt{encrypt(<input-file>, <output-file>, <key>)} is invoked.
+By carefully analyzing the disassembled code of this function, it turns out that key is not used.
+The function performs right rotation of each character of the ciphertext (input file) a number of times equal to the character position plus one.
+
+See: \textit{scripts/unbreakable_aes.py} is the script used to implement the decryption, making use of the inverse function of ror: rol -- ROtate Left.

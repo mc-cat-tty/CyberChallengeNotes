@@ -67,3 +67,21 @@ Tipically format is \texttt{1gx}. 1 value, g for giant, x for hex. \texttt{s} ca
 
 \section{Ghidra}
 \textit{Thunk function} is a function whose only purpose is to pass control to another function.
+
+\section{Radare2}
+Launch with \texttt{r2}.
+
+Use question mark to ask for help.
+
+Use example:
+\begin{verbatim}
+  aaaa -> analyze advanced
+  afll -> list found symbols (1)
+  pdf @ <function-name> -> print disassembly function
+  VV @ <function-name> -> block visualization
+\end{verbatim}
+
+(1) All functions that start with \texttt{sym} are offered by compiler, PLT, or are trampolines.
+Brown functions are the ones used by the program. \texttt{entry0} is the entrypoint.
+Functions that start with \texttt{fcn} are defined by the program itself.
+\texttt{sym.imp} means the function has been imported from C std lib.
