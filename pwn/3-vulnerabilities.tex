@@ -101,3 +101,10 @@ The idea is to generate the address we want to write on in the stack, read up to
 
 See: GCC fortify \\
 Remember to disable ASLR
+
+In real-world attack, the address of PLT/GOT table is found, then the address of system functions is written (in two steps since the address is large) as a return address.
+This allows arbitrary invokations.
+
+See: meaning of FORTIFY_SOURCE=2
+
+Safe version: \texttt{printf("\%s", user_input)}
