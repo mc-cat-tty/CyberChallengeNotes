@@ -70,3 +70,34 @@ proc.interactive()  # Give control to the user (since we opened a shell)
 
 \subsection{ASLR Bypass}
 ASLR randomizes addresses with a granularity of 4k (virtual memory size).
+
+\section{Format String Attacks}
+First documented in the second half of 2000. See: Team Teso (2001), Format String Exploitation Tutorial by Saif El-Sherei.
+
+Printf, scanf behaviour can be manipulated by carefully crafting format strings.
+Format strings can allow to read and write values from and to the stack.
+
+\texttt{Xprintf} and similar functions are variadic functions that take as first arg a format string.
+
+Eg: \texttt{printf(argv[1])} prints an arbitrary string. This string can even be a format string.
+Trying to pass \texttt{\%s\%s\%s} as argument, a segmentation fault will occur.
+Why? Since it is a variadic function, the addresses of the 3 strings will be searched into the stack.
+Printf function expects to find the values to substitute the placeholders in its internal stack.
+
+\texttt{\%x} is the placeholder intended to print a value that has the width of a machine word, in hexadecumal format.
+
+Modifiers can be used to alterate the length of the word: \textt{h} is the modifier for short, while \texttt{l} is the one for long.
+\texttt{\%<space-num>x} prints the same number of bytes as before but aligned to \texttt{<space-num>} bytes, while \texttt{\%<num>\$<space-num>x} jumps to the num-th byte on the stack (arbitrary stack data leak).
+
+Keep an eye on stack alignment, which depends on the underlying architecture.
+
+Idea: once the jump location has been identified (e.g. a return address), its content can be overwritten using the \texttt{\%n} operator.
+
+The \texttt{\%n} placeholder emits an integer value that corresponds to the number of chars prior the placeholder.
+E.g. in \textit{"Hello \%n"} the number 6 is emitted. For big jumps, this is more useful \textit{"\%<num>c \%n"}.
+The location where \texttt{\%n} places the value is the last address found in the last element of the variadic stack.
+
+The idea is to generate the address we want to write on in the stack, read up to that point, then perform a \texttt{\%n}.
+
+See: GCC fortify \\
+Remember to disable ASLR
