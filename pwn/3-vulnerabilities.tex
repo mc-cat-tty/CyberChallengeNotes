@@ -7,8 +7,66 @@
 
 See: \textit{Not all that glitters is gold}
 
-\section{Vulnerabilities calsses}
+\section{Vulnerabilities classes}
  - information leakage: unintented disclosure of secret information at the end user due to security breach
  - buffer overflow
  - race condition
  - invalid data processing
+
+\section{Memory Corruption}
+Covered memory corryption attacks:
+\begin{itemize}
+  \item buffer overflow
+  \item heap overflow
+  \item shellcode injection
+\end{itemize}
+
+\subsection{Typical Errors}
+Out-of-bound access, buffer overflow, reference pointing to the wrong location.
+
+Variables overriding consists in smashing the variables allocated on the stack alongside some buffer, under user control.
+This attack is used to corrupt the return address of a function.
+
+In 64 bits binaries, the entire 64 bits address space is not used in its entirety; instead, a 48 bits (the least significant 48 bits) address space is used.
+
+Addresses must be in \textbf{canonical form}:
+\begin{itemize}
+  \item From 0x0000000000000000 to 0x00007FFFFFFFFFFF -> application code
+  \item From 0xFFFF800000000000 to 0xFFFFFFFFFFFFFFFF -> kernel code (not copyied, virtual mem manages it)
+\end{itemize}
+
+\subsection{Heap Corruption}
+The typical objective is mangling data structures. E.g., changing point of a linked list. 
+
+\subsection{Code Injection}
+Idea: inject code using a buffer overflow and jumping to that portion of the stack. \\
+Requirements: ASLR + NX (stack areas are mutually executable or writable) deactivated.
+
+No stack canary means build with \texttt{-fno-stack-protector}.
+
+See: PwnCollege "Shellcode Injection" and "Intermediate memory errors" training modules
+
+Typically shellcraft is used to generate the shellcode.
+
+In order to locate the offset between the beginning of user input (input buffer) and return address we can use de Brujin sequences.
+\texttt{cyclic <num>} provides the means to inject the sequence, while \texttt{cyclic -l 0x<seq-hex>} locates the distance from input buffer start, thanks to low repeatability of the sequence.
+
+Pwntools can be used to perform binary attacks:
+\begin{verbatim}
+from pwn import *
+
+exec = ELF("<binary-name>")
+
+payload = "a"*32  # offset
+payload += p32(<target-addr>)
+payload += asm(shellcraft.sh())
+
+proc = process("./<bin-name>")
+proc.sendlineafter(b'<str>', payload)
+
+print(proc.clean()) # Clean returns the output of the process accumulated up to this point
+proc.interactive()  # Give control to the user (since we opened a shell)
+\end{verbatim}
+
+\subsection{ASLR Bypass}
+ASLR randomizes addresses with a granularity of 4k (virtual memory size).
