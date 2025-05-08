@@ -63,3 +63,36 @@ By carefully analyzing the disassembled code of this function, it turns out that
 The function performs right rotation of each character of the ciphertext (input file) a number of times equal to the character position plus one.
 
 See: \textit{scripts/unbreakable_aes.py} is the script used to implement the decryption, making use of the inverse function of ror: rol -- ROtate Left.
+
+\section{Software Security 2}
+\subsection{SS_2.01 - Digital billboard}
+The following snippet is the core of the challenge:
+\begin{verbatim}
+struct billboard {
+    char text[256];
+    char devmode;
+};
+struct billboard bb = { .text="Placeholder", .devmode=0 };
+
+void set_text(int argc, char* argv[]) {
+    strcpy(bb.text, argv[1]);
+    printf("Successfully set text to: %s\n", bb.text);
+    return;
+}
+\end{verbatim}
+
+Using \texttt{strcpy} is inherently unsafe.
+By maliciously manipulating the input string, \texttt{devmode} flag can be flipped.
+The value of \texttt{text} is comnpletely under the user's input: \texttt{'a'*257} is enough to overflow the allocated buffer, thus turning \texttt{devmode} into \texttt{'a'}, which is 1 under boolean perspective.
+
+\subsection{SS_2.02 - 1996}
+Objective: change control flow to run the \texttt{spawn_shell} function.
+
+\texttt{cin} function allows stack smashing, and PIE is disabled, making it impossible for the kernel to enable ASLR.
+\texttt{spawn_shell} address can be found from the symbol table: \texttt{objdump -t 1996 | grep "spawn"}.
+The address is 64-bits long, like \texttt{file 1996} confirms.
+
+Reversing the binary allows us to understand the offset of the stored RIP in \texttt{main}'s stack: 1048 bytes from buffer's base address.
+By filling the stack with 1048 bytes of padding and appeding the desired address (\textit{0000000000400897}) at the end of the payload, the challenge is solved.
+
+See: \textit{scripts/1996.py}
