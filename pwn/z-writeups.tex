@@ -97,7 +97,7 @@ By filling the stack with 1048 bytes of padding and appeding the desired address
 
 See: \textit{scripts/1996.py}
 
-\subsection{}
+\subsection{SS_2.03 - the answer}
 Objective: change the value of \texttt{the_answer} variable in \texttt{.data} section, replacing its content with the value 42.
 
 From the application source code, call to \texttt{printf} with arbitrary user input can be noticed.
@@ -111,3 +111,26 @@ Solution#1: \texttt{python3 -c 'import sys; from pwn import p32; sys.stdout.buff
 Solution#2: \texttt{python3 -c 'import sys; from pwn import p32; sys.stdout.buffer.write(b"AAAAAA\%36c\%12\$ln" + p32(0x0000000000601078).ljust(8, b"\0") + b"\n")'}
 
 The attack consists in writing 42 bytes, then jumping to printf variadic stack that contains the target address, writing emitted bytes/chars (42) in that location with \texttt{\%12\$ln}.
+
+\subsection{SS_2.04 - restricted shell}
+Objective: get an unrestricted shell on the target machine.
+
+Preliminary analysis: it can be noticed (with \texttt{checksec}) that the binary has all security measures turned off, especially the NX flag. \\
+Performing a static analysis on the binary reveals that \texttt{shell()} functions allocate a buffer of 40 bytes and write user's input in it, with an unbounded function (\texttt{gets}). \\
+The application terminates its execution if the passed command does not match \texttt{ls} or \texttt{dir}; if that's the case, then the function returns with an error message. \\
+
+Given the unsecure nature of \texttt{gets} a buffer overflow can be performed, with the intermediate objective of overwriting the return address of the function. \\
+The static analysis also reveals that a "gadget" | \texttt{jmp esp} | is placed at the end of the function. This instruction (combined with the fact that NX is disabled) allows us to move control flow to the stack. \\
+
+This scenario leads to an attack that exploits the buffer overflow to redirect execution towards the gadget, which in turn executes user-controlled input on the stack, where a shellcode will be placed.
+
+It is also worth noticing that before the \texttt{ret} instruction, a \texttt{leave} is present, which changes the esp-ebp "configuration" in the midst of the attack.
+
+The final pyaload is crafted as follows:
+\begin{itemize}
+  \item 44 bytes of padding -- some NOPs has been used, but even non-valid opcodes are ok. This offset can be found either by hand (static analysis) or with \texttt{pwn cyclic} (dynamic analysis).
+  \item the target address -- aka the address of the gadget.
+  \item the shellcode (which, after the leave+ret, will be found at the head of the stack)
+\end{itemize}
+
+See: \textit{scripts/restricted_shell.py}
