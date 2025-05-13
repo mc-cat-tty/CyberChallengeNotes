@@ -134,3 +134,11 @@ The final pyaload is crafted as follows:
 \end{itemize}
 
 See: \textit{scripts/restricted_shell.py}
+
+\subsection{SS_2.05 - LMRTFY}
+The input buffer is executable and gets executed in \texttt{main} function.
+System calls are blacklisted by \texttt{memmem} functions which search 3 needles (\texttt{int 80}, \texttt{syscall}, \texttt{sysenter}) in input buffer.
+
+Idea: use a standard shellcode to open a shell, replacing \texttt{int 80} with an absolute jump (actually, a push and ret) to an instruction that performs it, a "gadget".
+
+See: \textit{scripts/lmrtfy.py}
