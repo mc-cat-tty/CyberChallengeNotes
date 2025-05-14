@@ -108,3 +108,73 @@ This allows arbitrary invokations.
 See: meaning of FORTIFY_SOURCE=2
 
 Safe version: \texttt{printf("\%s", user_input)}
+
+\section{Countermeasures}
+\subsection{Non-Executable Stack}
+Code injection attacks can be mitigated with NX | Non eXecutable | stack. The stack is flagged as RW and not RWE (Read Write Execute).
+
+For most compilers, the default is stack hardening. Though, GCC's \texttt{-z noexecstack} can be used. \texttt{readlef -e <binary>} can be used to verify with which countermeasures the binary is compiled.
+
+NX stack is helpless if code is not executed from the stack. E.g., return to libc and ROP chains.
+
+\subsection{Stack Canaries}
+The stack is usually instrumented in such a way that a secret value, changing at each run, is written near the return address of the current stack pointer at the beginning of the function and check at the exit.
+
+Without \texttt{-fstack-protector} the canary is inserted smartly: if a buffer overflow is possible in the stack frame it is inserted, not inserted otherwise.
+With that option it is always inserted.
+
+This mitigation can be broken in at most 7*256 tries if the server behaves like an oracle that tells us if a stack smashing happened.
+The idea is that lower byte is always zero to stop reading of the canary with printf/puts functions; the remaining 7 bytes can be bruteforces if the server application spawnns a thread each time a new client arrive (since process image is the same for both parents and childs).
+
+Leaking a canary is also possible with a format string attack, by dumping the content of some RAM.
+
+\subsection{ASLR}
+Address Space Layout Randomization randomly positions base address of text section, stack and heap spaces.
+
+Remember that libraries are often shared through CoW mechanisms.
+If ASLR wasn't on we could work out the offset of, for instance, \texttt{system} function and use it in a ROP chain.
+
+Different ASLR levels can be chosen. See: memory maps in \texttt{/proc/<pid>/}
+
+See: \texttt{randomize_va_space} levels (0 disabled; 1 randomizes stack, VDSO adn shared memory; 2 randomizes the prev plus data segment and heap).
+
+\href{Personalities}{https://man7.org/linux/man-pages/man2/personality.2.html} are the way to granularly change system properties for a single process. The \texttt{setarch} command is used.
+
+Bypassing ASLR:
+\begin{itemize}
+  \item bruteforce all possible addresses: feasable in x86 (4k of randomness) but not in x86_64
+  \item exfiltrate the address of a libc function (or any other function). Depending on in which section the element is stored, I can break different parts of ASLR (text, data, etc.). *
+\end{itemize}
+
+* remember to use the version of the lib that exactly binds with the one used in the binary.
+
+\subsection{Control-Flow Integrity}
+A call graph (or control flow graph) is computed at compile-time. If the runtime control-flow graph differs, the binary is killed.
+
+See: https://eli.thegreenplace.net
+
+\subsection{PLT and GOT: Partial and Full RELRO}
+Dynamic linking is performed with two support tables:
+\begin{itemize}
+  \item GOT -- Global Offset Table: huge table that contains in each the address of each global object.
+  N elements mapped to N addressees.
+  \item PLT -- Procedure Linkage Table: table that contains a trampoline for each dynamically linked function.
+  First PLT object is the solver.
+  PLT entries are trampolines that resolve the address of the function at runtime the first time, then store the target addr of the function in the GOT table (lazy).
+\end{itemize}
+
+If a runtime address is leaked, the address of GOT table can be worked out.
+Each function that accepts an address as its first and only argument, is a potential candidate for the attacker.
+The attacker can overwrite the address of such a function | for e.g. with heap overflow | and redirect the control flow to the desired target.
+
+Two countermeasures are used by modern Linux OSs:
+\begin{itemize}
+  \item Partial RELRO: GOT is stored before any writable memory section (before the heap ), then it cannot be overwritten by a heap overlow
+  \item Full RELRO: the GOT table is solved "now" (DT_BIND_NOW), at the start of the binary, and then set as read-only.
+\end{itemize}
+
+GCC options are: \texttt{-Wl,-z,norelro} to disable it, \texttt{-Wl,-z,relro} to enable partial RELRO, and \texttt{-Wl,-z,relro,-z,now} to enable full RELRO.
+
+See: https://www.redhat.com/en/blog/hardening-elf-binaries-using-relocation-read-only-relro.
+
+Relocation records can be listed with: \texttt{objdump -r <binary>}.
