@@ -142,3 +142,23 @@ System calls are blacklisted by \texttt{memmem} functions which search 3 needles
 Idea: use a standard shellcode to open a shell, replacing \texttt{int 80} with an absolute jump (actually, a push and ret) to an instruction that performs it, a "gadget".
 
 See: \textit{scripts/lmrtfy.py}
+
+\subsection{SS_2.06 - arraymaster1}
+Static analysis: the application was probably written in C.
+For each array the program keeps track of 5 piece of data of length 8 bytes: len (+0), type (+8), p* (+16), get (+24), set (+32).
+This control structure contains 3 attributes (len, type, pointer to the data region -- called p*) and 2 methods (get and set).
+Debug symbols are not stripped; by looking at them, \texttt{spawn_shell} function can be found.
+The input length of an array is unbounded, everything else looks safe: puts used instead of printfs with no format string set and get 
+However, it can be noticed that data length is stored in the struct directly as the user input; the malloc size is instead \texttt{len * data_bits/8}. 
+The critical point of the application is the \texttt{imul} before the call to the \texttt{malloc}.
+
+Dynamic analysis: dynamically tracing calls to \texttt{malloc} with \texttt{ltrace} reveals that the heap is 8-bytes aligned and, as far as slab control is concerned, each data is preceded by the a block of 8 bytes.
+
+Idea: exploiting the fact that len is stored as-is in the struct, while before the malloc a multiplication is performed, allowing an integer overflow to happen.
+In particular, our objective is to store a big size in the control struct, to unlock arbitrary writes in the heap with the set function, while at the same time allocating a small amount of bytes.
+Such length values depend on the size of the data type (64 bits in the script). \\
+Once the length check in set function is bypassed, we can basically write arbitrary bytes on arbitrary heap (maybe even stack, not experimented) locations allocated after our "array".
+By allocating a second "array" and overwriting its \texttt{set} function pointer with \texttt{spawn_shell} address, we will get a shell right after the invocation of the set function of the second block.
+
+
+See: \textit{scripts/arraymaster.py}
