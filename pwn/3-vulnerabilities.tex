@@ -178,3 +178,39 @@ GCC options are: \texttt{-Wl,-z,norelro} to disable it, \texttt{-Wl,-z,relro} to
 See: https://www.redhat.com/en/blog/hardening-elf-binaries-using-relocation-read-only-relro.
 
 Relocation records can be listed with: \texttt{objdump -r <binary>}.
+
+\section{Bypassing Countermeasures}
+\subsection{Return to libc}
+Objective: bypass ASLR using libc content to run a shell.
+
+Remember: x32 ABI involves pushing function params in reverse order on the stack, then the return address, which is used by the ret to return control flow to the caller.
+
+To find the address of \texttt{system} function call \texttt{p system} after the start of the program (after ld loaded dynamic libraries).
+
+Libc always contains "/bin/sh" string, since it is used by \texttt{system}, which under the hood calls \texttt{execve} with "/bin/sh" as first argument.
+
+\texttt{strings -t x <libc-so>} to print the offset of "/bin/sh" in hexadecimal.
+
+\texttt{info proc mappings} prints the memory maps of the application.
+
+Idea: inject into the stack padding + ret address (to libc) + first argument (addr of "/bin/sh").
+
+Remember: \texttt{bash -i} to get an interactive shell.
+
+Ret2libc allows for a chain of execution long at most 2: junk + system addr + exit address + shell string address + exit code
+
+See: https://docs.pwntools.com/en/stable/elf/corefile.html
+
+\subsection{ROP Oriented Programming}
+Idea: push on the stack address of functions I want to execute or addresses of fragments of code that prepare/shift the stack for something else.
+
+These fragments are called gadgets: blocks of instructions that at the end returns/branches.
+
+See: \texttt{ROPgadget.py}. Usage: \texttt{ROPgadget.py --binary <binary/libc-so>}.
+
+We are especially looking for gadgets that perform register-to-register, register-to-memory, memory-to-registers operations, since in x86_64 arguments are passed through registers.
+
+Basically we are using stack and gadgets as a Turing tape.
+
+In x86 gadgets are also useful to realign the stack and prepare params for the next call, see: pop-pop-pop-ret sequence.
+
