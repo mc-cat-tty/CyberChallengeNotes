@@ -162,3 +162,19 @@ By allocating a second "array" and overwriting its \texttt{set} function pointer
 
 
 See: \textit{scripts/arraymaster.py}
+
+\section{Software Security 3}
+\subsection{SS_3.01 - ReallyOptimizedPrimality test}
+Idea#1: since the NX flag is enabled, injecting a shellcode would be useless.
+As a first approach, ret2libc has been used; however, it turned out that wasn't the proper solution since ASLR is allegedly active on the remote machine.
+
+Idea#2: since ret2libc didn't work out, a ROP chain has been used.
+"/bin/sh" string can be found in the \texttt{.rodata} section of the binary, as well as a "pop eax; int 80" sequence; plus, a series of other gadgets are available to set edx and ecx registers.
+The idea in therefore to build a ROP chain that sets registers in such a way that the "int 80" successfully calls an \texttt{execve} with arguments \texttt{("/bin/sh", NULL, NULL)}.
+
+The following diagram illustrates the payload:
+\begin{verbatim}
++----------+----------------------------+---------------+--------+--------------------+--------+-----------------------+--------+
+|  'A'*80  |  POP_EBX_POP_ECX_RET_ADDR  |  BIN_SH_ADDR  |  0x00  |  POP_EDX_RET_ADDR  |  0x00  |  POP_EAX_INT_80_ADDR  |  0x0b  |
++----------+----------------------------+---------------+--------+--------------------+--------+-----------------------+--------+
+\end{verbatim}
