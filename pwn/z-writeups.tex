@@ -64,6 +64,17 @@ The function performs right rotation of each character of the ciphertext (input 
 
 See: \textit{scripts/unbreakable_aes.py} is the script used to implement the decryption, making use of the inverse function of ror: rol -- ROtate Left.
 
+\subsection{SS_1.06 - pacman}
+Static analysis reveals that the binary implements a game in which the player has to navigate a maze with \texttt{hjkl} controls.
+The final goal of the game is traversing the maze without touching the letters that compose the word "pacman": 'p', 'a', 'c', etc.
+
+As an alternative, the binary can be dynamically analyzed; however, a kinda protection is enabled at the beginning of the \texttt{main} function: \texttt{ptrace(request: PTRACE_TRACEME, 0, 1, 0) == -1}.
+This protection can be easily bypassed patching the binary. This can turn in useful if you are willing to profile its execution under GDB, Ptrace, Strace, and so on.
+
+A suitable sequence of moves can be found implementing a simple backtracking algorithm.
+
+See: \textit{scripts/pacman.py}
+
 \section{Software Security 2}
 \subsection{SS_2.01 - Digital billboard}
 The following snippet is the core of the challenge:
@@ -178,3 +189,5 @@ The following diagram illustrates the payload:
 |  'A'*80  |  POP_EBX_POP_ECX_RET_ADDR  |  BIN_SH_ADDR  |  0x00  |  POP_EDX_RET_ADDR  |  0x00  |  POP_EAX_INT_80_ADDR  |  0x0b  |
 +----------+----------------------------+---------------+--------+--------------------+--------+-----------------------+--------+
 \end{verbatim}
+
+See: \textit{scripts/primality.py}
