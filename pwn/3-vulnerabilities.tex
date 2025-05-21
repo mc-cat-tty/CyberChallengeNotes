@@ -214,3 +214,11 @@ Basically we are using stack and gadgets as a Turing tape.
 
 In x86 gadgets are also useful to realign the stack and prepare params for the next call, see: pop-pop-pop-ret sequence.
 
+See: Weird Machine
+
+\subsection{GOT Overwrite}
+This attacks can be performed on binaries with no or partial RELRO.
+The objective is to overwrite the address of a libc function contained in GOT talbe (for eg, through fmt string attack) that accepts arguments (such as puts/printf), and substitute it with a function like \texttt{system}.
+
+To get GOT addres address from GDB (32-bits binarie) we have to read \textit{<function>@plt} interpreting it as instructions.
+The result is sequence of push-jmp. The address towards which the jump is performed is the address of the entry in GOT table.
