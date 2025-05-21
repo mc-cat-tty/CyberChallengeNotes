@@ -191,3 +191,28 @@ The following diagram illustrates the payload:
 \end{verbatim}
 
 See: \textit{scripts/primality.py}
+
+\subsection{SS_3.02 - Eliza}
+By statically analyzing the code it can be noticed that the binary was compiled with hardened canaries (even where buffers are not allocated).
+Another important thing to be aware of is that the input-check-output sequence is contained in an infinite superloop.
+
+Idea: leaking the canary overwriting its most significant byte (0 to stop printing functions).
+After leaking the canary we can craft a payload that smashes the stack, passing canary checks and leading to \texttt{sp4wn_4_sh311} execution.
+
+\begin{verbatim}
+buf (rsi): 0x7fffffffe100
+ret (rsp): 0x7fffffffe158
+diff: 88
+
+Stack layout:
++-----|--------+---------+---------+
+| buf | canary | old_rbp | old_rip |
++-----|--------+---------+---------+
+0     +72      +80       +88
+
+sp4wn_4_sh311: 0x400897 (fixed since PIE is off).
+\end{verbatim}
+
+See: \textit{scripts/eliza.py}
+
+\subsection{SS_3.03 - TicTacToe}
