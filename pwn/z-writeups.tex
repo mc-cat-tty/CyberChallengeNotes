@@ -216,3 +216,17 @@ sp4wn_4_sh311: 0x400897 (fixed since PIE is off).
 See: \textit{scripts/eliza.py}
 
 \subsection{SS_3.03 - TicTacToe}
+We have to overwrite a function that has the same signature as the one that we want to overwrite.
+We will overwrite the puts that prints the name of the gamer.
+
+Changing the content of the \texttt{puts}'s address in the GOT table \textbf{after a resolution} (this is fundamental to avoid the right resolution to overwrite our malicious value) will result in the next execution of \texttt{system} instead of \texttt{puts}. 
+
+Notice: \texttt{ltrace} works by hooking to the linked library function in the PLT/GOT table.
+
+Two\ \texttt{system}s are available: \texttt{system@plt} and \texttt{.got.plt.system}. The same holds for \texttt{puts}.
+
+Both \texttt{system@plt} and \texttt{puts@plt} are known at compile time.
+
+The format string is crafted as follows: \texttt{<got.plt["puts"]>\%<num-char-equivalent-to-system@plt-addr>c<padding-x*4-bytes>\%15\$ln}
+
+See: \textit{scripts/tictactoe.py}
