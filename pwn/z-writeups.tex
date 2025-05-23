@@ -230,3 +230,19 @@ Both \texttt{system@plt} and \texttt{puts@plt} are known at compile time.
 The format string is crafted as follows: \texttt{<got.plt["puts"]>\%<num-char-equivalent-to-system@plt-addr>c<padding-x*4-bytes>\%15\$ln}
 
 See: \textit{scripts/tictactoe.py}
+
+\subsection{SS_3.04 - Try-your-luck}
+Static analysis of the binary reveals that the buffer allocated for the user's name is undersize, allowing a buffer overflow to occur when \texttt{read} function is called;
+it is also evident that the final goal of the challenge is to return to \texttt{you_won} function in order to get a shell.
+
+The binary has no canaries, but ASLR, PIE and NX are enabled.
+
+Also, dynamic analysis confirms that the address of the function is randomized with a granularity of 4Kb (lower 12 bits).
+At the same time, the higher bytes are the same as the one of the \texttt{game}'s function caller, aka \texttt{main} function.
+In fact the whole program is so short that it lives in the same memory page.
+
+Idea: it is sufficient to overwrite the lower 12 bits to invoke the \texttt{you_won} function.
+This is however unfeasable, since we can write memory with a granularity of one byte: the smallest data size we can send to the program is then 16 bits.
+Meaning, the fourth from last nibble (4 bits) will have to be bruteforced.
+
+See: \textit{scripts/luck.py}
