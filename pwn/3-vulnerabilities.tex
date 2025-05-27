@@ -181,7 +181,7 @@ Relocation records can be listed with: \texttt{objdump -r <binary>}.
 
 \section{Bypassing Countermeasures}
 \subsection{Return to libc}
-Objective: bypass ASLR using libc content to run a shell.
+Objective: bypass NX using libc content to run a shell.
 
 Remember: x32 ABI involves pushing function params in reverse order on the stack, then the return address, which is used by the ret to return control flow to the caller.
 
