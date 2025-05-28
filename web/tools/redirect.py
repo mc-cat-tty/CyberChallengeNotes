@@ -15,4 +15,3 @@ class Redirect(BaseHTTPRequestHandler):
         self.end_headers()
 
 HTTPServer(("", int(sys.argv[1])), Redirect).serve_forever()
-
